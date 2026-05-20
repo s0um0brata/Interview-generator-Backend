@@ -8,7 +8,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
     origin: ["http://localhost:5173",
-    "interview-generator-frontend-smoky.vercel.app"],
+    "https://interview-generator-frontend-smoky.vercel.app"],
     credentials: true
 }))
 
