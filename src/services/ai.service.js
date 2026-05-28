@@ -148,7 +148,8 @@ ${jobDescription}
 `;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      // model: "gemini-3-flash-preview",
+      model: "gemini-2.5-flash",
       contents: prompt,
     });
 
@@ -339,8 +340,8 @@ The final result should look like a real premium software engineer resume create
 `;
 
   const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
-    // model: "gemini-2.5-flash",
+    // model: "gemini-3-flash-preview",
+    model: "gemini-2.5-flash",
     contents: prompt,
     config: {
       responseMimeType: "application/json",
