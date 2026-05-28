@@ -8,6 +8,42 @@ const interviewReportModel = require("../models/interviewReport.model");
 /**
  * @description Controller to generate interview report based on user self description, resume and job description
  */
+// async function generateInterviewReportController(req, res) {
+//   try {
+//     const resumeContent = await new pdfParse.PDFParse(
+//       Uint8Array.from(req.file.buffer),
+//     ).getText();
+
+//     const { selfDescription, jobDescription } = req.body;
+
+//     const interviewReportByAi = await generateInterviewReport({
+//       resume: resumeContent.text,
+//       selfDescription,
+//       jobDescription,
+//     });
+
+//     const interviewReport = await interviewReportModel.create({
+//       user: req.user.id,
+//       resume: resumeContent.text,
+//       selfDescription,
+//       jobDescription,
+//       ...interviewReportByAi,
+//     });
+
+//     res.status(201).json({
+//       message: "Interview report generated successfully.",
+//       interviewReport,
+//     });
+//   } catch (error) {
+//     console.error(error);
+
+//     res.status(500).json({
+//       message: "Failed to generate interview report",
+//       error: error.message,
+//     });
+//   }
+// }
+
 async function generateInterviewReportController(req, res) {
   try {
     const resumeContent = await new pdfParse.PDFParse(
@@ -16,22 +52,35 @@ async function generateInterviewReportController(req, res) {
 
     const { selfDescription, jobDescription } = req.body;
 
-    const interviewReportByAi = await generateInterviewReport({
-      resume: resumeContent.text,
-      selfDescription,
-      jobDescription,
-    });
+    let interviewReportByAi;
 
-    const interviewReport = await interviewReportModel.create({
-      user: req.user.id,
-      resume: resumeContent.text,
-      selfDescription,
-      jobDescription,
-      ...interviewReportByAi,
-    });
+    try {
+      interviewReportByAi = await generateInterviewReport({
+        resume: resumeContent.text,
+        selfDescription,
+        jobDescription,
+      });
+    } catch (aiError) {
+      console.error("AI generation failed:", aiError);
+
+      return res.status(429).json({
+        message:
+          "AI quota exceeded. Please try again later.",
+      });
+    }
+
+    const interviewReport =
+      await interviewReportModel.create({
+        ...interviewReportByAi,
+        user: req.user.id,
+        resume: resumeContent.text,
+        selfDescription,
+        jobDescription,
+      });
 
     res.status(201).json({
-      message: "Interview report generated successfully.",
+      message:
+        "Interview report generated successfully.",
       interviewReport,
     });
   } catch (error) {
